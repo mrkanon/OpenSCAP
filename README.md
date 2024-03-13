@@ -1,2 +1,2 @@
-# OpenSCAP
-Herramienta en python para usar escaneos de oscap
+# OpenSCAPTool
+Python tool to use oscap scans
