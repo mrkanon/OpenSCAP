@@ -47,7 +47,7 @@ class OpenSCAPAnalyzer:
             elif scan_result == "pass":
                 passed += 1
             total += 1
-        print(f"\nEstadisticas de {scan_root} | Pass {passed} | Fail {failed} | Total {total}")
+        print(f"\nSummary of {scan_root} | Pass {passed} | Fail {failed} | Total {total}")
     
     def compare_scans(self, scan1_file, scan2_file):
         scan1_root = self.parse_xml(scan1_file)
@@ -68,26 +68,26 @@ class OpenSCAPAnalyzer:
                     differences += 1
                     if scan1_result == "fail" & scan2_result == "pass":
                         fixed +=1
-                        print(f"La Regla {rule_idref} que fallo en el primer escaneo fue corregida en el segundo escaneo.")
+                        print(f"The rule {rule_idref} that failed in the first scan was corrected in the second scan.")
                     if scan1_result == "pass" & scan2_result == "fail":
                         fail += 1
-                        print(f"La Regla {rule_idref} fallo en el segundo escaneo.")
+                        print(f"The rule {rule_idref} failed in the second scan.")
                     if (scan1_result == "notselected" or scan1_result == "notapplicable") and (scan2_result == "pass" or scan2_result == "fail"):
                         new_rule += 1
-                        print(f"La Regla {rule_idref} se agrego en el segundo escaneo con el estatus: {scan2_result} .")
-            print(f"\nTotal de diferencias encontradas: {differences} | Solucionadas {fixed} | Fallaron {fail} | Nuevas {new_rule}")
+                        print(f"The rule {rule_idref} was added in the second scan with the status: {scan2_result} .")
+            print(f"\nTotal differences found: {differences} | Fixed {fixed} | Fail {fail} | New {new_rule}")
             self.summary_scan(scan1_root)
             self.summary_scan(scan2_root)
         else:
-            print("Los escaneos no coinciden.")
+            print("The scans don´t match.")
 
 def run_scan(scanner):
     scan_path = scanner.run_scan()
-    print(f"Escaneo completado. Resultados guardados en: {scan_path}")
+    print(f"Scan completed. Results saved in: {scan_path}")
 
 def list_scans(output_dir):
     files = os.listdir(output_dir)
-    print("Escaneos anteriores:")
+    print("Previous scans:")
     for file in files:
         print(file)
 
@@ -97,27 +97,27 @@ def print_scan(output_dir, file_name):
         subprocess.run(command)
 
     except FileNotFoundError:
-        print("Archivo no encontrado.")
+        print("File not found.")
 
 def compare_scans(analyzer, output_dir, scan1_file, scan2_file):
     try:
         analyzer.compare_scans(os.path.join(output_dir, scan1_file), os.path.join(output_dir, scan2_file))
     except FileNotFoundError:
-        print("Archivo no encontrado.")
+        print("File not found.")
 
 def exit_program():
-    print("Saliendo del programa.")
+    print("Exiting the program.")
     exit()
     
 def main():
     parser = argparse.ArgumentParser(
             prog='OpenSCAP Scaner Tool',
             description='This is a tool to run, compare, print and list oscap test with the profile stig.')
-    parser.add_argument('--output-dir', default="/var/log/openscap", help='Directorio de salida para los resultados del escaneo')
-    parser.add_argument('--run-scan', action='store_true', help='Ejecutar un nuevo escaneo')
-    parser.add_argument('--list-scans', action='store_true', help='Listar escaneos anteriores')
-    parser.add_argument('--print-scan', metavar='FILE', help='Imprimir un escaneo específico')
-    parser.add_argument('--compare-scans', metavar=('FILE1', 'FILE2'), nargs=2, help='Comparar dos escaneos anteriores')
+    parser.add_argument('--output-dir', default="/var/log/openscap", help='Output directory for scan results')
+    parser.add_argument('--run-scan', action='store_true', help='Run a new scan')
+    parser.add_argument('--list-scans', action='store_true', help='List previous scans')
+    parser.add_argument('--print-scan', metavar='FILE', help='Print a specific scan')
+    parser.add_argument('--compare-scans', metavar=('FILE1', 'FILE2'), nargs=2, help='Compare two previous scans')
     
     args = parser.parse_args()
     output_dir = args.output_dir
