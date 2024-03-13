@@ -31,6 +31,70 @@ python3 OscapScanTool.py --compare-scans FILE1 FILE2
 + Before running the tool, ensure that the required OpenSCAP tools are installed and accessible in the system environment.
 + Make sure to provide valid file names and directories when using the tool to avoid errors.
 
+---
+
+# Running OscapScanTool with Python 3.11 and venv
+
+## Prerequisites
+
+- Python 3.11 installed on your system.
+- Access to the terminal or command line.
+
+## Setting Up the Virtual Environment
+
+1. Open a terminal.
+2. Navigate to the folder where the OscapScanTool.py file is located.
+
+```bash
+cd path_to_your_folder/sandbox
+```
+
+3. Create a new virtual environment using Python 3.11. You can do this with the following command:
+
+```bash
+python3.11 -m venv myenv
+```
+
+4. Activate the virtual environment:
+
+On Linux/macOS:
+
+```bash
+source myenv/bin/activate
+```
+
+On Windows:
+
+```bash
+myenv\Scripts\activate
+```
+
+## Installing Dependencies
+
+Once the virtual environment is activated, install the necessary dependencies using pip:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Running the Program
+
+After installing the dependencies, you can run the Python program using the following command:
+
+```bash
+python3.11 OscapScanTool.py [arguments]
+```
+
+Make sure to replace `[arguments]` with the specific options you want to use, such as `--run-scan`, `--list-scans`, `--print-scan`, `--compare-scans`, or `--verbose`, as defined in the program.
+
+## Deactivating the Virtual Environment
+
+When you're finished using the program, you can deactivate the virtual environment by typing the following command in the terminal:
+
+```bash
+deactivate
+```
+
 # Docker
 
 ## Introduction
