@@ -94,9 +94,9 @@ def list_scans(output_dir):
 def print_scan(output_dir):
     file_name = input("Ingrese el nombre del archivo de escaneo a imprimir: ")
     try:
-        command = ["vi ",f"{output_dir}/{file_name}"
-                ]
+        command = ["vi", os.path.join(output_dir, file_name)]
         subprocess.run(command)
+
 
         with open(os.path.join(output_dir, file_name), "r") as file:
             xml_string = file.read()
