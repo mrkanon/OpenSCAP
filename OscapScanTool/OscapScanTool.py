@@ -11,7 +11,6 @@ class OpenSCAPScanner:
     def run_scan(self):
         scap_profile = "xccdf_org.ssgproject.content_profile_stig"
         name = f"openscap_scan_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
-        report_path = os.path.join(self.output_dir, name+".html")
         result_path = os.path.join(self.output_dir, name+".xml")
 
         os.makedirs(self.output_dir, exist_ok=True)
@@ -20,14 +19,12 @@ class OpenSCAPScanner:
             "oscap", "xccdf", "eval",
             "--profile", scap_profile,
             "--results", result_path,
-            "--report", report_path,
-            "--oval-results",
             "--cpe", "/usr/share/xml/scap/ssg/content/ssg-ol8-cpe-dictionary.xml",
             "/usr/share/xml/scap/ssg/content/ssg-ol8-xccdf.xml"
         ]
         subprocess.run(scan_command)
 
-        return report_path
+        return result_path
 
 class OpenSCAPAnalyzer:
     def __init__(self, output_dir):
@@ -38,8 +35,7 @@ class OpenSCAPAnalyzer:
         root = tree.getroot()
         return root
 
-    def summary_scan(self,scan_file):
-        scan_root = self.parse_xml(scan_file)
+    def summary_scan(self,scan_root):
         passed = 0
         failed = 0
         total = 0
@@ -51,7 +47,7 @@ class OpenSCAPAnalyzer:
             elif scan_result == "pass":
                 passed += 1
             total += 1
-        print(f"\nEstadisticas de {scan_file} | Pass {passed} | Fail {failed} | Total {total}")
+        print(f"\nEstadisticas de {scan_root} | Pass {passed} | Fail {failed} | Total {total}")
     
     def compare_scans(self, scan1_file, scan2_file):
         scan1_root = self.parse_xml(scan1_file)
@@ -76,12 +72,12 @@ class OpenSCAPAnalyzer:
                     if scan1_result == "pass" & scan2_result == "fail":
                         fail += 1
                         print(f"La Regla {rule_idref} fallo en el segundo escaneo.")
-                    if (scan1_result == "notselected" | scan1_result == "notapplicable") & (scan2_result == "pass" | scan2_result == "fail"):
+                    if (scan1_result == "notselected" or scan1_result == "notapplicable") and (scan2_result == "pass" or scan2_result == "fail"):
                         new_rule += 1
                         print(f"La Regla {rule_idref} se agrego en el segundo escaneo con el estatus: {scan2_result} .")
             print(f"\nTotal de diferencias encontradas: {differences} | Solucionadas {fixed} | Fallaron {fail} | Nuevas {new_rule}")
-            self.summary_scan(scan1_file)
-            self.summary_scan(scan2_file)
+            self.summary_scan(scan1_root)
+            self.summary_scan(scan2_root)
         else:
             print("Los escaneos no coinciden.")
 
@@ -98,6 +94,10 @@ def list_scans(output_dir):
 def print_scan(output_dir):
     file_name = input("Ingrese el nombre del archivo de escaneo a imprimir: ")
     try:
+        command = ["vi ",f"{output_dir}/{file_name}"
+                ]
+        subprocess.run(command)
+
         with open(os.path.join(output_dir, file_name), "r") as file:
             xml_string = file.read()
             dom = xml.dom.minidom.parseString(xml_string)
