@@ -31,6 +31,8 @@ class OpenSCAPAnalyzer:
         self.output_dir = output_dir
     
     def parse_xml(self, file_path):
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError(f"The file {file_path} not found.")
         tree = etree.parse(file_path)
         root = tree.getroot()
         return root
@@ -86,12 +88,20 @@ def run_scan(scanner):
     print(f"Scan completed. Results saved in: {scan_path}")
 
 def list_scans(output_dir):
+    if not os.path.exists(output_dir):
+        print(f"Directory {output_dir} does not exist.")
+        return
     files = os.listdir(output_dir)
     print("Previous scans:")
     for file in files:
         print(file)
 
 def print_scan(output_dir, file_name):
+    file_path = os.path.join(output_dir, file_name)
+
+    if not os.path.exists(file_path):
+        print(f"File {file_name} not found in {output_dir}.")
+        return
     try:
         command = ["vi", os.path.join(output_dir, file_name)]
         subprocess.run(command)
