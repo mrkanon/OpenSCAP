@@ -1,8 +1,8 @@
-import subprocess
 import os
+import subprocess
 import datetime
 from lxml import etree
-import xml.dom.minidom
+import argparse
 
 class OpenSCAPScanner:
     def __init__(self, output_dir):
@@ -91,24 +91,15 @@ def list_scans(output_dir):
     for file in files:
         print(file)
 
-def print_scan(output_dir):
-    file_name = input("Ingrese el nombre del archivo de escaneo a imprimir: ")
+def print_scan(output_dir, file_name):
     try:
         command = ["vi", os.path.join(output_dir, file_name)]
         subprocess.run(command)
 
-
-        with open(os.path.join(output_dir, file_name), "r") as file:
-            xml_string = file.read()
-            dom = xml.dom.minidom.parseString(xml_string)
-            pretty_xml = dom.toprettyxml()
-            print(pretty_xml)
     except FileNotFoundError:
         print("Archivo no encontrado.")
 
-def compare_scans(analyzer, output_dir):
-    scan1_file = input("Ingrese el nombre del primer archivo de escaneo: ")
-    scan2_file = input("Ingrese el nombre del segundo archivo de escaneo: ")
+def compare_scans(analyzer, output_dir, scan1_file, scan2_file):
     try:
         analyzer.compare_scans(os.path.join(output_dir, scan1_file), os.path.join(output_dir, scan2_file))
     except FileNotFoundError:
@@ -119,32 +110,28 @@ def exit_program():
     exit()
     
 def main():
-    output_dir = "/var/log/openscap"
+    parser = argparse.ArgumentParser(
+            prog='OpenSCAP Scaner Tool',
+            description='This is a tool to run, compare, print and list oscap test with the profile stig.')
+    parser.add_argument('--output-dir', default="/var/log/openscap", help='Directorio de salida para los resultados del escaneo')
+    parser.add_argument('--run-scan', action='store_true', help='Ejecutar un nuevo escaneo')
+    parser.add_argument('--list-scans', action='store_true', help='Listar escaneos anteriores')
+    parser.add_argument('--print-scan', metavar='FILE', help='Imprimir un escaneo específico')
+    parser.add_argument('--compare-scans', metavar=('FILE1', 'FILE2'), nargs=2, help='Comparar dos escaneos anteriores')
+    
+    args = parser.parse_args()
+    output_dir = args.output_dir
     scanner = OpenSCAPScanner(output_dir)
     analyzer = OpenSCAPAnalyzer(output_dir)
 
-    actions = {
-        "1": lambda: run_scan(scanner),
-        "2": lambda: list_scans(output_dir),
-        "3": lambda: print_scan(output_dir),
-        "4": lambda: compare_scans(analyzer, output_dir),
-        "5": lambda: exit_program()
-    }
-
-    while True:
-        print("\nMenu:")
-        print("1. Ejecutar un escaneo")
-        print("2. Listar escaneos anteriores")
-        print("3. Imprimir un escaneo especifico anterior")
-        print("4. Comparar dos escaneos anteriores")
-        print("5. Salir")
-
-        choice = input("Seleccione una opcion: ")
-
-        if choice in actions:
-            actions[choice]()
-        else:
-            print("Opcion no valida. Por favor, seleccione una opcion valida.")
+    if args.run_scan:
+        run_scan(scanner)
+    elif args.list_scans:
+        list_scans(output_dir)
+    elif args.print_scan:
+        print_scan(output_dir, args.print_scan)
+    elif args.compare_scans:
+        compare_scans(analyzer, output_dir, args.compare_scans[0], args.compare_scans[1])
 
 if __name__ == "__main__":
     main()
